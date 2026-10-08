@@ -1,0 +1,14 @@
+.vscode/
+.idea/
+
+*.class
+*.out
+*.exe
+*.o
+
+bin/
+build/
+lib/
+
+Makefile
+makefile
