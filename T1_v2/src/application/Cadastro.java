@@ -1,5 +1,5 @@
 package application;
 
-public class cadastro {
+public class Cadastro {
     
 }

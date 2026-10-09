@@ -1,5 +1,5 @@
 package domain;
 
-public class produto {
+public class Animal {
     
 }

@@ -1,5 +1,5 @@
 package domain;
 
-public class pessoa {
+public class Venda {
     
 }
