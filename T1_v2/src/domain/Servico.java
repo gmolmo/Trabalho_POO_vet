@@ -1,6 +1,6 @@
 package domain;
 
-public class Serviço {
+public class Servico {
     private String nome;
     private double preco;
     private Animal animalAtendido;
