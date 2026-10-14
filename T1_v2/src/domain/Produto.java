@@ -3,13 +3,13 @@ package domain;
 import java.time.LocalDate;
 
 public class Produto {
-    private int id;
-    private String nome;
-    private double precoCompra;
-    private double precoVenda;
-    private LocalDate inicioVigencia;
-    private LocalDate fimVigencia;
-    private String[] animaisDestinados;
+    private final int id;
+    private final String nome;
+    private final double precoCompra;
+    private final double precoVenda;
+    private final LocalDate inicioVigencia;
+    private final LocalDate fimVigencia;
+    private final String[] animaisDestinados;
 
     public Produto(int id, String nome, double precoCompra, double precoVenda, LocalDate inicioVigencia, LocalDate fimVigencia, String[] animaisDestinados) {
         this.id = id;

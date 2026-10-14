@@ -4,21 +4,12 @@ import java.time.LocalDate;
 
 public class Venda {
     private PessoaFisica cliente;
-    private int idCliente;
+    private final int idCliente;
     private Produto produtoVendido;
-    private int idProduto;
-    private int quantidade;
-    private int id;
-    private LocalDate dataVenda;
-
-
-    public PessoaFisica getCliente() {
-        return cliente;
-    }
-
-    public Produto getProdutoVendido() {
-        return produtoVendido;
-    }
+    private final int idProduto;
+    private final int quantidade;
+    private final int id;
+    private final LocalDate dataVenda;
 
     public Venda(int idCliente, int idProduto, int quantidade, int id, LocalDate dataVenda) {
         this.idCliente = idCliente;
@@ -26,6 +17,14 @@ public class Venda {
         this.quantidade = quantidade;
         this.id = id;
         this.dataVenda = dataVenda;
+    }
+
+    public PessoaFisica getCliente() {
+        return cliente;
+    }
+
+    public Produto getProdutoVendido() {
+        return produtoVendido;
     }
 
     public int getIdCliente() {
@@ -46,6 +45,14 @@ public class Venda {
 
     public LocalDate getDataVenda() {
         return dataVenda;
+    }
+
+    public void setCliente(PessoaFisica cliente) {
+        this.cliente = cliente;
+    }
+
+    public void setProdutoVendido(Produto produtoVendido) {
+        this.produtoVendido = produtoVendido;
     }
 
     

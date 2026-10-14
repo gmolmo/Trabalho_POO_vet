@@ -4,17 +4,17 @@ import java.time.LocalDate;
 
 public class Atendimento {
     private Servico servicoPrestado;
-    public Atendimento(int idServicoPrestado, LocalDate data, int id, int idAnimal) {
+    private final int idServicoPrestado;
+    private final LocalDate data;
+    private final int id;
+    private final int idAnimal;
+
+        public Atendimento(int idServicoPrestado, LocalDate data, int id, int idAnimal) {
         this.idServicoPrestado = idServicoPrestado;
         this.data = data;
         this.id = id;
         this.idAnimal = idAnimal;
     }
-
-    private int idServicoPrestado;
-    private LocalDate data;
-    private int id;
-    private int idAnimal;
     
     public Servico getServidoPrestado() {
         return servicoPrestado;
@@ -34,6 +34,14 @@ public class Atendimento {
 
     public int getIdServicoPrestado() {
         return idServicoPrestado;
+    }
+
+    public void setServicoPrestado(Servico servicoPrestado) {
+        this.servicoPrestado = servicoPrestado;
+    }
+
+    public int getIdAnimal() {
+        return idAnimal;
     }
 
 

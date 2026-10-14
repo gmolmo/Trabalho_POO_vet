@@ -3,11 +3,11 @@ package domain;
 import java.time.LocalDate;
 
 public class Animal {
-    private int idTutor;
-    private String nome;
-    private LocalDate dataNascimento;
-    private String familia; 
-    private int id;
+    private final int idTutor;
+    private final String nome;
+    private final LocalDate dataNascimento;
+    private final String familia; 
+    private final int id;
 
     public String getNome() {
         return nome;

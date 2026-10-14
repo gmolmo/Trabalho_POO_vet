@@ -3,8 +3,8 @@ package domain;
 import java.time.LocalDate;
 
 public class PessoaFisica extends Pessoa {
-    private String cpf;
-    private LocalDate dataNascimento;
+    private final String cpf;
+    private final LocalDate dataNascimento;
     
     public PessoaFisica(String nome, String endereco, String telefone, int id,String cpf, LocalDate dataNascimento) {
         super(nome, endereco, telefone, id);
