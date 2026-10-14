@@ -71,23 +71,68 @@ public class Leitura {
     public ArrayList LeAnimais() throws IOException{
         ArrayList<Animal> animais = new ArrayList<>();
 
+        try(BufferedReader leitor = Files.newBufferedReader(caminhoAnimais, StandardCharsets.UTF_8)){
+            String linha = leitor.readLine();//cabeçalho do arquivo
 
+            while((linha = leitor.readLine())!=null)// == hasnextline
+            {
+                if(linha.isBlank())
+                    continue;
+                String[] partes = linha.split(";");
 
+                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate data = LocalDate.parse(partes[4].trim(), formatador); 
+                Animal a = new Animal(Integer.parseInt(partes[1].trim()), partes[2].trim(),data,partes[3].trim(),Integer.parseInt(partes[0]));
+                animais.add(a);
+            }
+        }
 
         return animais;
     }    
     public ArrayList LeProdutos() throws IOException{
         ArrayList<Produto> produtos = new ArrayList<>();
 
+        try(BufferedReader leitor = Files.newBufferedReader(caminhoProdutos, StandardCharsets.UTF_8)){
+            String linha = leitor.readLine();//cabeçalho do arquivo
 
+            while((linha = leitor.readLine())!=null)// == hasnextline
+            {
+                if(linha.isBlank())
+                    continue;
+                String[] partes = linha.split(";");
 
+                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate dataInicio = LocalDate.parse(partes[5].trim(), formatador); 
+                LocalDate dataFim = LocalDate.parse(partes[6].trim(),formatador);
+                String[] animaisDestinados = partes[3].trim().split(",");
+                Produto a = new Produto(Integer.parseInt(partes[0].trim()),partes[1].trim(), Double.parseDouble(partes[2].trim()),Double.parseDouble(partes[4].trim()),dataInicio,dataFim,animaisDestinados);
+                produtos.add(a);
+            }
+        }
 
         return produtos;
     }    
     public ArrayList LeServicos() throws IOException{
         ArrayList<Servico> servicos = new ArrayList<>();
 
+        try(BufferedReader leitor = Files.newBufferedReader(caminhoServicos, StandardCharsets.UTF_8)){
+            String linha = leitor.readLine();//cabeçalho do arquivo
 
+            while((linha = leitor.readLine())!=null)// == hasnextline
+            {
+                if(linha.isBlank())
+                    continue;
+                String[] partes = linha.split(";");
+
+                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate dataInicio = LocalDate.parse(partes[5].trim(), formatador); 
+                LocalDate dataFim = LocalDate.parse(partes[6].trim(),formatador);
+                String[] animaisDestinados = partes[3].trim().split(",");
+
+                Servico a = new Servico(partes[2].trim(),Double.parseDouble(partes[4].trim()),animaisDestinados,Integer.parseInt(partes[1].trim()),Integer.parseInt(partes[0].trim()),dataInicio,dataFim);
+                servicos.add(a);
+            }
+        }
 
 
         return servicos;
@@ -95,15 +140,44 @@ public class Leitura {
     public ArrayList LeAtendimentos() throws IOException{
         ArrayList<Atendimento> atendimentos = new ArrayList<>();
 
+       try(BufferedReader leitor = Files.newBufferedReader(caminhoAtendimentos, StandardCharsets.UTF_8)){
+            String linha = leitor.readLine();//cabeçalho do arquivo
 
+            while((linha = leitor.readLine())!=null)// == hasnextline
+            {
+                if(linha.isBlank())
+                    continue;
+                String[] partes = linha.split(";");
 
+                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate data = LocalDate.parse(partes[3].trim(), formatador); 
+
+                Atendimento a = new Atendimento(Integer.parseInt(partes[2].trim()),data,Integer.parseInt(partes[0].trim()),Integer.parseInt(partes[1].trim()));
+                atendimentos.add(a);
+            }
+        }
 
         return atendimentos;
     }    
     public ArrayList LeVendas() throws IOException{
         ArrayList<Venda> vendas = new ArrayList<>();
 
+       try(BufferedReader leitor = Files.newBufferedReader(caminhoVendas, StandardCharsets.UTF_8)){
+            String linha = leitor.readLine();//cabeçalho do arquivo
 
+            while((linha = leitor.readLine())!=null)// == hasnextline
+            {
+                if(linha.isBlank())
+                    continue;
+                String[] partes = linha.split(";");
+
+                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate data = LocalDate.parse(partes[4].trim(), formatador); 
+
+                Venda a = new Venda(Integer.parseInt(partes[1].trim()),Integer.parseInt(partes[2].trim()),Integer.parseInt(partes[3].trim()),Integer.parseInt(partes[0].trim()),data);
+                vendas.add(a);
+            }
+        }
 
 
         return vendas;
