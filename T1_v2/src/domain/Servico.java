@@ -4,7 +4,7 @@ public class Servico {
     private String nome;
     private double preco;
     private Animal animalAtendido;
-    private Pessoa prestadorServiço;
+    private Pessoa prestadorServico;
     private int id;
     
     public String getNome() {
@@ -16,8 +16,8 @@ public class Servico {
     public Animal getAnimalAtendido() {
         return animalAtendido;
     }
-    public Pessoa getPrestadorServiço() {
-        return prestadorServiço;
+    public Pessoa getPrestadorServico() {
+        return prestadorServico;
     }
     public int getId() {
         return id;
