@@ -34,10 +34,10 @@ public class Leitura {
         this.caminhoAnimais = Paths.get(diretorio,"animais.csv");
         this.caminhoServicos = Paths.get(diretorio,"servicos.csv");
         this.caminhoProdutos = Paths.get(diretorio, "produtos.csv");
-        this.caminhoProdutos = Paths.get(diretorio, "atendimentos.csv");
-        this.caminhoProdutos = Paths.get(diretorio, "vendas.csv");
+        this.caminhoAtendimentos = Paths.get(diretorio, "atendimentos.csv");
+        this.caminhoVendas = Paths.get(diretorio, "vendas.csv");
     }
-    public ArrayList LePessoas() throws IOException{
+    public ArrayList<Pessoa> LePessoas() throws IOException{
         ArrayList<Pessoa> pessoas = new ArrayList<>();
 
         try(BufferedReader leitor = Files.newBufferedReader(caminhoPessoas, StandardCharsets.UTF_8)){
@@ -68,7 +68,7 @@ public class Leitura {
 
         return pessoas;
     }    
-    public ArrayList LeAnimais() throws IOException{
+    public ArrayList<Animal> LeAnimais() throws IOException{
         ArrayList<Animal> animais = new ArrayList<>();
 
         try(BufferedReader leitor = Files.newBufferedReader(caminhoAnimais, StandardCharsets.UTF_8)){
@@ -89,7 +89,7 @@ public class Leitura {
 
         return animais;
     }    
-    public ArrayList LeProdutos() throws IOException{
+    public ArrayList<Produto> LeProdutos() throws IOException{
         ArrayList<Produto> produtos = new ArrayList<>();
 
         try(BufferedReader leitor = Files.newBufferedReader(caminhoProdutos, StandardCharsets.UTF_8)){
@@ -112,7 +112,7 @@ public class Leitura {
 
         return produtos;
     }    
-    public ArrayList LeServicos() throws IOException{
+    public ArrayList<Servico> LeServicos() throws IOException{
         ArrayList<Servico> servicos = new ArrayList<>();
 
         try(BufferedReader leitor = Files.newBufferedReader(caminhoServicos, StandardCharsets.UTF_8)){
@@ -137,7 +137,7 @@ public class Leitura {
 
         return servicos;
     }    
-    public ArrayList LeAtendimentos() throws IOException{
+    public ArrayList<Atendimento> LeAtendimentos() throws IOException{
         ArrayList<Atendimento> atendimentos = new ArrayList<>();
 
        try(BufferedReader leitor = Files.newBufferedReader(caminhoAtendimentos, StandardCharsets.UTF_8)){
@@ -159,7 +159,7 @@ public class Leitura {
 
         return atendimentos;
     }    
-    public ArrayList LeVendas() throws IOException{
+    public ArrayList<Venda> LeVendas() throws IOException{
         ArrayList<Venda> vendas = new ArrayList<>();
 
        try(BufferedReader leitor = Files.newBufferedReader(caminhoVendas, StandardCharsets.UTF_8)){
