@@ -9,14 +9,15 @@ public class Venda {
     private final int idProduto;
     private final int quantidade;
     private final int id;
-    private final LocalDate dataVenda;
+    private final String dataString;
+    private LocalDate dataVenda;
 
-    public Venda(int idCliente, int idProduto, int quantidade, int id, LocalDate dataVenda) {
+    public Venda(int idCliente, int idProduto, int quantidade, int id, String dataVenda) {
         this.idCliente = idCliente;
         this.idProduto = idProduto;
         this.quantidade = quantidade;
         this.id = id;
-        this.dataVenda = dataVenda;
+        this.dataString= dataVenda;
     }
 
     public PessoaFisica getCliente() {
@@ -53,6 +54,14 @@ public class Venda {
 
     public void setProdutoVendido(Produto produtoVendido) {
         this.produtoVendido = produtoVendido;
+    }
+
+    public String getDataString() {
+        return dataString;
+    }
+
+    public void setDataVenda(LocalDate dataVenda) {
+        this.dataVenda = dataVenda;
     }
 
     

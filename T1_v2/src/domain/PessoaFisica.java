@@ -4,12 +4,13 @@ import java.time.LocalDate;
 
 public class PessoaFisica extends Pessoa {
     private final String cpf;
-    private final LocalDate dataNascimento;
+    private LocalDate dataNascimento;
+    private final String dataString;
     
-    public PessoaFisica(String nome, String endereco, String telefone, int id,String cpf, LocalDate dataNascimento) {
+    public PessoaFisica(String nome, String endereco, String telefone, int id,String cpf, String dataString) {
         super(nome, endereco, telefone, id);
         this.cpf = cpf;
-        this.dataNascimento = dataNascimento;
+        this.dataString = dataString;
     }
     public String getCpf() {
         return cpf;
@@ -17,4 +18,14 @@ public class PessoaFisica extends Pessoa {
     public LocalDate getDataNascimento(){
         return this.dataNascimento;
     }
+
+    public String getDataString() {
+        return dataString;
+    }
+
+    public void setData(LocalDate data)
+    {
+        this.dataNascimento = data;
+    }
+
 }

@@ -7,17 +7,19 @@ public class Produto {
     private final String nome;
     private final double precoCompra;
     private final double precoVenda;
-    private final LocalDate inicioVigencia;
-    private final LocalDate fimVigencia;
+    private LocalDate inicioVigencia;
+    private LocalDate fimVigencia;
+    private final String datainiString;
+    private final String datafimString;
     private final String[] animaisDestinados;
 
-    public Produto(int id, String nome, double precoCompra, double precoVenda, LocalDate inicioVigencia, LocalDate fimVigencia, String[] animaisDestinados) {
+    public Produto(int id, String nome, double precoCompra, double precoVenda, String inicioVigencia, String fimVigencia, String[] animaisDestinados) {
         this.id = id;
         this.nome = nome;
         this.precoCompra = precoCompra;
         this.precoVenda = precoVenda;
-        this.inicioVigencia = inicioVigencia;
-        this.fimVigencia = fimVigencia;
+        this.datainiString = inicioVigencia;
+        this.datafimString = fimVigencia;
         this.animaisDestinados = animaisDestinados;
     }
 
@@ -48,5 +50,21 @@ public class Produto {
 
     public String[] getAnimaisDestinados() {
         return animaisDestinados;
+    }
+
+    public String getDatainiString() {
+        return datainiString;
+    }
+
+    public String getDatafimString() {
+        return datafimString;
+    }
+
+    public void setInicioVigencia(LocalDate inicioVigencia) {
+        this.inicioVigencia = inicioVigencia;
+    }
+
+    public void setFimVigencia(LocalDate fimVigencia) {
+        this.fimVigencia = fimVigencia;
     }
 }
