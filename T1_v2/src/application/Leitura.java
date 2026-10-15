@@ -14,8 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Leitura {
@@ -51,9 +49,7 @@ public class Leitura {
 
                 switch (partes[1]) {
                     case "F":
-                        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                        LocalDate data = LocalDate.parse(partes[6].trim(), formatador); 
-                        PessoaFisica p = new PessoaFisica(partes[2].trim(), partes[4].trim(), partes[3].trim(), Integer.parseInt(partes[0].trim()), partes[5].trim(), data);
+                        PessoaFisica p = new PessoaFisica(partes[2].trim(), partes[4].trim(), partes[3].trim(), Integer.parseInt(partes[0].trim()), partes[5].trim(), partes[6].trim());
                         pessoas.add(p);
                         break;
                     case "J":
@@ -80,9 +76,7 @@ public class Leitura {
                     continue;
                 String[] partes = linha.split(";");
 
-                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate data = LocalDate.parse(partes[4].trim(), formatador); 
-                Animal a = new Animal(Integer.parseInt(partes[1].trim()), partes[2].trim(),data,partes[3].trim(),Integer.parseInt(partes[0]));
+               Animal a = new Animal(Integer.parseInt(partes[1].trim()), partes[2].trim(),partes[4].trim(),partes[3].trim(),Integer.parseInt(partes[0]));
                 animais.add(a);
             }
         }
@@ -101,11 +95,8 @@ public class Leitura {
                     continue;
                 String[] partes = linha.split(";");
 
-                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate dataInicio = LocalDate.parse(partes[5].trim(), formatador); 
-                LocalDate dataFim = LocalDate.parse(partes[6].trim(),formatador);
                 String[] animaisDestinados = partes[3].trim().split(",");
-                Produto a = new Produto(Integer.parseInt(partes[0].trim()),partes[1].trim(), Double.parseDouble(partes[2].trim()),Double.parseDouble(partes[4].trim()),dataInicio,dataFim,animaisDestinados);
+                Produto a = new Produto(Integer.parseInt(partes[0].trim()),partes[1].trim(), Double.parseDouble(partes[2].trim()),Double.parseDouble(partes[4].trim()),partes[5].trim(),partes[6].trim(),animaisDestinados);
                 produtos.add(a);
             }
         }
@@ -124,12 +115,9 @@ public class Leitura {
                     continue;
                 String[] partes = linha.split(";");
 
-                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate dataInicio = LocalDate.parse(partes[5].trim(), formatador); 
-                LocalDate dataFim = LocalDate.parse(partes[6].trim(),formatador);
                 String[] animaisDestinados = partes[3].trim().split(",");
 
-                Servico a = new Servico(partes[2].trim(),Double.parseDouble(partes[4].trim()),animaisDestinados,Integer.parseInt(partes[1].trim()),Integer.parseInt(partes[0].trim()),dataInicio,dataFim);
+                Servico a = new Servico(partes[2].trim(),Double.parseDouble(partes[4].trim()),animaisDestinados,Integer.parseInt(partes[1].trim()),Integer.parseInt(partes[0].trim()),partes[5].trim(),partes[6].trim());
                 servicos.add(a);
             }
         }
@@ -149,10 +137,7 @@ public class Leitura {
                     continue;
                 String[] partes = linha.split(";");
 
-                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate data = LocalDate.parse(partes[3].trim(), formatador); 
-
-                Atendimento a = new Atendimento(Integer.parseInt(partes[2].trim()),data,Integer.parseInt(partes[0].trim()),Integer.parseInt(partes[1].trim()));
+                Atendimento a = new Atendimento(Integer.parseInt(partes[2].trim()),partes[3].trim(),Integer.parseInt(partes[0].trim()),Integer.parseInt(partes[1].trim()));
                 atendimentos.add(a);
             }
         }
@@ -171,10 +156,7 @@ public class Leitura {
                     continue;
                 String[] partes = linha.split(";");
 
-                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate data = LocalDate.parse(partes[4].trim(), formatador); 
-
-                Venda a = new Venda(Integer.parseInt(partes[1].trim()),Integer.parseInt(partes[2].trim()),Integer.parseInt(partes[3].trim()),Integer.parseInt(partes[0].trim()),data);
+                Venda a = new Venda(Integer.parseInt(partes[1].trim()),Integer.parseInt(partes[2].trim()),Integer.parseInt(partes[3].trim()),Integer.parseInt(partes[0].trim()),partes[4].trim());
                 vendas.add(a);
             }
         }
