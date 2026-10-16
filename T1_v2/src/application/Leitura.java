@@ -10,6 +10,7 @@ import domain.Servico;
 import domain.Venda;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,11 +50,11 @@ public class Leitura {
 
                 switch (partes[1]) {
                     case "F":
-                        PessoaFisica p = new PessoaFisica(partes[2].trim(), partes[4].trim(), partes[3].trim(), Integer.parseInt(partes[0].trim()), partes[5].trim(), partes[6].trim());
+                        PessoaFisica p = new PessoaFisica(partes[2].trim(), partes[4].trim(), partes[3].trim(), new BigInteger(partes[0].trim()), partes[5].trim(), partes[6].trim());
                         pessoas.add(p);
                         break;
                     case "J":
-                        PessoaJuridica pj = new PessoaJuridica(partes[2].trim(), partes[4].trim(), partes[3].trim(), Integer.parseInt(partes[0].trim()), partes[5].trim());
+                        PessoaJuridica pj = new PessoaJuridica(partes[2].trim(), partes[4].trim(), partes[3].trim(), new BigInteger(partes[0].trim()), partes[5].trim());
                         pessoas.add(pj);
                         break;
                     default:
@@ -76,7 +77,7 @@ public class Leitura {
                     continue;
                 String[] partes = linha.split(";");
 
-               Animal a = new Animal(Integer.parseInt(partes[1].trim()), partes[2].trim(),partes[4].trim(),partes[3].trim(),Integer.parseInt(partes[0]));
+               Animal a = new Animal(new BigInteger(partes[1].trim()), partes[2].trim(),partes[4].trim(),partes[3].trim(),new BigInteger(partes[0].trim()));
                 animais.add(a);
             }
         }
@@ -96,7 +97,7 @@ public class Leitura {
                 String[] partes = linha.split(";");
 
                 String[] animaisDestinados = partes[3].trim().split(",");
-                Produto a = new Produto(Integer.parseInt(partes[0].trim()),partes[1].trim(), Double.parseDouble(partes[2].trim()),Double.parseDouble(partes[4].trim()),partes[5].trim(),partes[6].trim(),animaisDestinados);
+                Produto a = new Produto(new BigInteger(partes[0].trim()),partes[1].trim(), Double.parseDouble(partes[2].trim()),Double.parseDouble(partes[4].trim()),partes[5].trim(),partes[6].trim(),animaisDestinados);
                 produtos.add(a);
             }
         }
@@ -117,7 +118,7 @@ public class Leitura {
 
                 String[] animaisDestinados = partes[3].trim().split(",");
 
-                Servico a = new Servico(partes[2].trim(),Double.parseDouble(partes[4].trim()),animaisDestinados,Integer.parseInt(partes[1].trim()),Integer.parseInt(partes[0].trim()),partes[5].trim(),partes[6].trim());
+                Servico a = new Servico(partes[2].trim(),Double.parseDouble(partes[4].trim()),animaisDestinados,new BigInteger(partes[1].trim()),new BigInteger(partes[0].trim()),partes[5].trim(),partes[6].trim());
                 servicos.add(a);
             }
         }
@@ -137,7 +138,7 @@ public class Leitura {
                     continue;
                 String[] partes = linha.split(";");
 
-                Atendimento a = new Atendimento(Integer.parseInt(partes[2].trim()),partes[3].trim(),Integer.parseInt(partes[0].trim()),Integer.parseInt(partes[1].trim()));
+                Atendimento a = new Atendimento(new BigInteger(partes[2].trim()),partes[3].trim(),new BigInteger(partes[0].trim()),new BigInteger(partes[1].trim()));
                 atendimentos.add(a);
             }
         }
@@ -156,7 +157,7 @@ public class Leitura {
                     continue;
                 String[] partes = linha.split(";");
 
-                Venda a = new Venda(Integer.parseInt(partes[1].trim()),Integer.parseInt(partes[2].trim()),Integer.parseInt(partes[3].trim()),Integer.parseInt(partes[0].trim()),partes[4].trim());
+                Venda a = new Venda(new BigInteger(partes[1].trim()),new BigInteger(partes[2].trim()),Integer.parseInt(partes[3].trim()),new BigInteger(partes[0].trim()),partes[4].trim());
                 vendas.add(a);
             }
         }

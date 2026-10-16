@@ -1,16 +1,17 @@
 package domain;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 
 public class Animal {
-    private final int idTutor;
+    private final BigInteger idTutor;
     private final String nome;
     private LocalDate dataNascimento;
     private final String dataString;
     private final String familia; 
-    private final int id;
+    private final BigInteger id;
 
-        public Animal(int idTutor, String nome, String data, String familia, int id) {
+        public Animal(BigInteger idTutor, String nome, String data, String familia, BigInteger id) {
         this.idTutor = idTutor;
         this.nome = nome;
         this.dataString = data;
@@ -27,10 +28,10 @@ public class Animal {
     public String getFamilia() {
         return familia;
     }
-    public int getId() {
+    public BigInteger getId() {
         return id;
     }
-    public int getIdTutor() {
+    public BigInteger getIdTutor() {
         return idTutor;
     }
 

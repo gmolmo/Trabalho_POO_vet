@@ -1,12 +1,14 @@
 package domain;
 
+import java.math.BigInteger;
+
 public abstract class Pessoa {
     public String nome;
     public String endereco;
     public String telefone;
-    public int id;
+    public BigInteger id;
 
-    public Pessoa(String nome, String endereco, String telefone, int id) {
+    public Pessoa(String nome, String endereco, String telefone, BigInteger id) {
         this.nome = nome;
         this.endereco = endereco;
         this.telefone = telefone;
@@ -21,7 +23,7 @@ public abstract class Pessoa {
     public String getTelefone() {
         return telefone;
     }
-    public int getId() {
+    public BigInteger getId() {
         return id;
     }
 }

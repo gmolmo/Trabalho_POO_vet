@@ -1,20 +1,21 @@
 package domain;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 
 public class Servico {
     private final String nome;
     private final double preco;
     private final String[] animaisDestinados;
-    private final int idPrestadorServico;
+    private final BigInteger idPrestadorServico;
     private Pessoa PrestadorServico;
-    private final int id;
+    private final BigInteger id;
     private LocalDate dataInicio;
     private LocalDate datafim;
     private final String datainiString;
     private final String datafimString;
 
-    public Servico(String nome, double preco, String[] animaisDestinados, int idPrestadorServico, int id,
+    public Servico(String nome, double preco, String[] animaisDestinados, BigInteger idPrestadorServico, BigInteger id,
        String dataInicio, String datafim) {
         this.nome = nome;
         this.preco = preco;
@@ -40,10 +41,10 @@ public class Servico {
     public String[] getAnimaisDestinados() {
         return animaisDestinados;
     }
-    public int getIdPrestadorServico() {
+    public BigInteger getIdPrestadorServico() {
         return idPrestadorServico;
     }
-    public int getId() {
+    public BigInteger getId() {
         return id;
     }   
     public Pessoa getPrestadorServico() {

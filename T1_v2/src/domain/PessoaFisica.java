@@ -1,5 +1,6 @@
 package domain;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 
 public class PessoaFisica extends Pessoa {
@@ -7,7 +8,7 @@ public class PessoaFisica extends Pessoa {
     private LocalDate dataNascimento;
     private final String dataString;
     
-    public PessoaFisica(String nome, String endereco, String telefone, int id,String cpf, String dataString) {
+    public PessoaFisica(String nome, String endereco, String telefone, BigInteger id,String cpf, String dataString) {
         super(nome, endereco, telefone, id);
         this.cpf = cpf;
         this.dataString = dataString;
