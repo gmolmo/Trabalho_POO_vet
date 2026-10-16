@@ -17,10 +17,6 @@ public class Atendimento {
         this.id = id;
         this.idAnimal = idAnimal;
     }
-    
-    public Servico getServidoPrestado() {
-        return servicoPrestado;
-    }
 
     public LocalDate getData() {
         return data;
