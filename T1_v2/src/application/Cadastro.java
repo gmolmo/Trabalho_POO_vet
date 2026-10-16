@@ -166,19 +166,56 @@ public class Cadastro {
     { 
         for(int i = 0; i < servicosRecebidos.size(); i++)
         {
+            Servico s = servicosRecebidos.get(i);
+            if(pessoaEstaCadastrada(s.getIdPrestadorServico()))
+            {
+                s.setPrestadorServico(getPessoaCadastrada(s.getIdPrestadorServico()));
+            }        //verifica se o prestador de serviço esta cadastrado
+            else        //se sim, atribui, se nao, inconsistenciaException
+                throw new InconsistenciaException("DEBUG: Precisa?: Prestador de serviço de ID "+s.getIdPrestadorServico()+" não cadastrado para o Servico de ID "+s.getId()+".");
+            
+            try {//verifica as datas de inicio e fim de vigencia
+                LocalDate data = LocalDate.parse(s.getDatainiString(),formatador);
+                s.setDataInicio(data);
+            } catch (DateTimeParseException e) {
+                throw new InconsistenciaException("A data "+s.getDatainiString()+" de início de vigência do Serviço "+s.getId()+" é inválida.");
+            }
+            try {
+                LocalDate data = LocalDate.parse(s.getDatafimString(),formatador);
+                s.setDatafim(data);
+            } catch (DateTimeParseException e) {
+                throw new InconsistenciaException("A data "+s.getDatafimString()+" de fim de vigência do Serviço "+s.getId()+" é inválida.");
+            }//se nao, inconsistenciaException
+
+            if(servicoEstaCadastrado(s))        //verifica se existe um serviço de mesmo id e sobreposicao de datas
+                throw new InconsistenciaException("Sobreposição de datas no Serviço de ID "+s.getId()+".");
+
+            servicosCadastrados.add(s);
         }
-        //verifica se o prestador de serviço esta cadastrado
-        //se sim, atribui, se nao, inconsistenciaException
-        //verifica as datas de inicio e fim de vigencia
-        //se ok, atribui, se nao, inconsistencia
-        //verifica se existe um serviço de mesmo id e sobreposicao de datas
     }
     public void processaAtendimentos(ArrayList<Atendimento> atendimentosRecebidos) throws InconsistenciaException
     {
+        for(int i = 0; i < atendimentosRecebidos.size(); i++)
+        {
+            Atendimento a = atendimentosRecebidos.get(i);
 
+            if(atendimentoEstaCadastrado(a.getId()))
+                throw new InconsistenciaException("ID repetido "+a.getId()+" na classe Atendimento.");
+            
+        }
     }
 
     //FAZER OS MÉTODOS GETITEMARRAY PARA CADA TIPO QUE PRECISA SER "LIGADO"
+
+    private Pessoa getPessoaCadastrada(BigInteger idDesejado)
+    {
+        for(int i = 0; i < this.pessoasCadastradas.size(); i++)
+        {
+            if(this.pessoasCadastradas.get(i).getId().equals(idDesejado))
+                return this.pessoasCadastradas.get(i);
+        }
+        return null;
+    }
 
     private PessoaFisica getPessoaFisicaCadastrada(BigInteger idDesejado)
     {
