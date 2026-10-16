@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 public class Animal {
     private final BigInteger idTutor;
+    private PessoaFisica tutor;
     private final String nome;
     private LocalDate dataNascimento;
     private final String dataString;
@@ -41,5 +42,9 @@ public class Animal {
 
     public String getDataString() {
         return dataString;
+    }
+
+    public void setTutor(PessoaFisica tutor) {
+        this.tutor = tutor;
     }
 }
