@@ -69,8 +69,14 @@ public class Cadastro {
             }
             else
             {
-                //pega cadastro, verifica se é pessoaFisica, se nao
-                //throw new InconsistenciaException("O Tutor de ID "+a.getIdTutor()+" do Animal de ID "+a.getId()+" não cadastrado.");
+                PessoaFisica tutor = getPessoaFisicaCadastrada(a.getIdTutor());
+                if(tutor == null)
+                {
+                    throw new InconsistenciaException("O Tutor de ID "+a.getIdTutor()+" do Animal de ID "+a.getId()+" não cadastrado.");
+                }
+                else
+                    a.setTutor(tutor);
+                
             }//se existir liga o tutor
 
             try {//tenta gerar a data
@@ -79,33 +85,124 @@ public class Cadastro {
             } catch (DateTimeParseException e) {//se nao->inconsistencia exception
                     throw new InconsistenciaException("A data de nascimento "+a.getDataString()+" do Animal "+a.getId()+" é inválida.");
                 }
+
+            if(animalNaoSuportado(a.getFamilia()))        //se der, verifica se é de familia aceita
+            {//se nao->inconsistencia exception
+                throw new InconsistenciaException("A Família "+a.getFamilia()+" do Animal de ID "+a.getId()+" não é suportada.");
+            }
+
+            animaisCadastrados.add(a);
+            //se passou por tudo isso, adiciona
         }
-        
-
-
-        
-        
-        
-        //se der, verifica se é de familia aceita
-        //se nao->inconsistencia exception
-        //se passou por tudo isso, adiciona
+                
     }
     public void processaProdutos(ArrayList<Produto> produtosRecebidos) throws InconsistenciaException
     {
-
+        for(int i = 0; i < produtosRecebidos.size(); i++)
+        {
+            Produto p = produtosRecebidos.get(i);
+            //alocar as datas e verificar CADA uma
+            try {
+                LocalDate data = LocalDate.parse(p.getDatainiString(),formatador);
+                p.setInicioVigencia(data);
+            } catch (DateTimeParseException e) {
+                throw new InconsistenciaException("A data "+p.getDatainiString()+" de início de vigência do Produto "+p.getId()+" é inválida.");
+            }
+            try {
+                LocalDate data = LocalDate.parse(p.getDatafimString(),formatador);
+                p.setFimVigencia(data);
+            } catch (DateTimeParseException e) {
+                throw new InconsistenciaException("A data "+p.getDatafimString()+" de fim de vigência do Produto "+p.getId()+" é inválida.");
+            }//se nao, inconsistenciaException
+            
+            if(produtoEstaCadastrado(p))//se sim, verificar se já tem um igual cadastrado com sobreposicao de datas
+                throw new InconsistenciaException("Sobreposição de datas no Produto de ID "+p.getId()+".");
+            //se sim, inconsistenciaException
+            
+            produtosCadastrados.add(p);
+            //se nao, adiciona
+        }
+        
     }
     public void processaVendas(ArrayList<Venda> vendasRecebidas) throws InconsistenciaException
     {
+        for(int i = 0; i < vendasRecebidas.size(); i++)
+        {
+            Venda v = vendasRecebidas.get(i);
 
-    }
+            if(vendaEstaCadastrado(v.getId()))
+            {
+                throw new InconsistenciaException("ID repetido "+v.getId()+" na classe Venda.");
+            }
+
+            if(!pessoaEstaCadastrada(v.getIdCliente()))
+            {
+                throw new InconsistenciaException("Cliente de ID "+v.getIdCliente()+" da Venda de ID "+v.getId()+" não cadastrado.");
+            }
+            else
+            {
+                v.setCliente(getPessoaFisicaCadastrada(v.getIdCliente()));
+            }
+            try {
+                LocalDate data = LocalDate.parse(v.getDataString(),formatador);
+                v.setDataVenda(data);
+            } catch (DateTimeParseException e) {
+                throw new InconsistenciaException("A data "+v.getDataString()+" da Venda "+v.getId()+" é inválida.");
+            }
+            if(!produtoValidoParaData(v.getIdProduto(), v.getDataVenda()))
+            {
+                throw new InconsistenciaException("Não há registro de Produto de ID "+v.getIdProduto()+" na Data "+v.getDataString()+" para a Venda de ID "+v.getId()+".");
+            }
+            else
+            {
+                v.setProdutoVendido(getProdutoValidoParaVenda(v.getIdProduto(), v.getDataVenda()));
+            }
+
+            vendasCadastradas.add(v);
+
+        }
+    }   
     public void processaServicos(ArrayList<Servico> servicosRecebidos) throws InconsistenciaException
     { 
-
+        for(int i = 0; i < servicosRecebidos.size(); i++)
+        {
+        }
+        //verifica se o prestador de serviço esta cadastrado
+        //se sim, atribui, se nao, inconsistenciaException
+        //verifica as datas de inicio e fim de vigencia
+        //se ok, atribui, se nao, inconsistencia
+        //verifica se existe um serviço de mesmo id e sobreposicao de datas
     }
     public void processaAtendimentos(ArrayList<Atendimento> atendimentosRecebidos) throws InconsistenciaException
     {
 
     }
+
+    //FAZER OS MÉTODOS GETITEMARRAY PARA CADA TIPO QUE PRECISA SER "LIGADO"
+
+    private PessoaFisica getPessoaFisicaCadastrada(BigInteger idDesejado)
+    {
+        for(int i = 0; i < this.pessoasCadastradas.size(); i++)
+        {
+            if(this.pessoasCadastradas.get(i).getId().equals(idDesejado) &&this.pessoasCadastradas.get(i) instanceof PessoaFisica)
+                return (PessoaFisica)this.pessoasCadastradas.get(i);
+        }
+        return null;
+    }
+
+    private Produto getProdutoValidoParaVenda(BigInteger idProdutoDesejado, LocalDate dataVenda) {
+    for (Produto prod : produtosCadastrados) {
+        if (prod.getId().equals(idProdutoDesejado)) {
+            LocalDate inicio = prod.getInicioVigencia();
+            LocalDate fim = prod.getFimVigencia();
+            
+            if (!dataVenda.isBefore(inicio) && !dataVenda.isAfter(fim)) {
+                return prod;
+            }
+        }
+    }
+    return null;
+}
 
     //FAZER OS MÉTODOS ISINRARRAY PRA CADA TIPO QUE NÃO PODE REPETIR
     
@@ -192,6 +289,20 @@ public class Cadastro {
         }
         return true;
     }
+
+    private boolean produtoValidoParaData(BigInteger idProdutoDesejado, LocalDate dataVenda) {
+    for (Produto prod : produtosCadastrados) {
+        if (prod.getId().equals(idProdutoDesejado)) {
+            LocalDate inicio = prod.getInicioVigencia();
+            LocalDate fim = prod.getFimVigencia();
+            
+            if (!dataVenda.isBefore(inicio) && !dataVenda.isAfter(fim)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
     
 
     //Getters para o GeraRelatorio
