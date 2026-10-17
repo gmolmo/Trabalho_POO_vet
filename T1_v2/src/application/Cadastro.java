@@ -14,16 +14,16 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 public class Cadastro {
-    ArrayList<Pessoa> pessoasCadastradas;
-    ArrayList<Animal> animaisCadastrados;
-    ArrayList<Produto> produtosCadastrados;
-    ArrayList<Venda> vendasCadastradas;
-    ArrayList<Servico> servicosCadastrados;
-    ArrayList<Atendimento> atendimentosCadastrados;
+    private ArrayList<Pessoa> pessoasCadastradas;
+    private ArrayList<Animal> animaisCadastrados;
+    private ArrayList<Produto> produtosCadastrados;
+    private ArrayList<Venda> vendasCadastradas;
+    private ArrayList<Servico> servicosCadastrados;
+    private ArrayList<Atendimento> atendimentosCadastrados;
 
-    String[] animaisSuportados = {"Aves", "Cães", "Felinos", "Roedores"};
+    private final String[] animaisSuportados = {"Aves", "Cães", "Felinos", "Roedores"};
 
-    DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public Cadastro()
     {
