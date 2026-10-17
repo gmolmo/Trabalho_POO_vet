@@ -26,8 +26,12 @@ public class Leitura {
     Path caminhoVendas;
     String diretorio;
 
-    public Leitura(String diretorio)
+    public Leitura(String diretorio) throws IOException
     {
+        Path dirPath = Paths.get(diretorio);
+        if (!Files.exists(dirPath) || !Files.isDirectory(dirPath)) {
+        throw new IOException("Erro de I/O");
+    }
         this.diretorio = diretorio;
         this.caminhoPessoas = Paths.get(diretorio,"pessoas.csv");
         this.caminhoAnimais = Paths.get(diretorio,"animais.csv");
