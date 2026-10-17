@@ -55,5 +55,9 @@ public class Atendimento {
         this.animalAtendido = animalAtendido;
     }
 
+    public Animal getAnimalAtendido() {
+        return animalAtendido;
+    }
+
 
 }

@@ -44,6 +44,10 @@ public class Animal {
         return dataString;
     }
 
+    public PessoaFisica getTutor() {
+        return tutor;
+    }
+
     public void setTutor(PessoaFisica tutor) {
         this.tutor = tutor;
     }
