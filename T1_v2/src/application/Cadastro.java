@@ -25,6 +25,16 @@ public class Cadastro {
 
     DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    public Cadastro()
+    {
+        this.pessoasCadastradas = new ArrayList<>();
+        this.animaisCadastrados = new ArrayList<>();
+        this.produtosCadastrados = new ArrayList<>();
+        this.vendasCadastradas = new ArrayList<>();
+        this.servicosCadastrados = new ArrayList<>();
+        this.atendimentosCadastrados = new ArrayList<>();
+    }
+
     //metodos que ligam classes dependentes, checam inconsistencias e resultam em listas cadastradas validas
     public void processaPessoas(ArrayList<Pessoa> pessoasRecebidas) throws InconsistenciaException
     {
@@ -171,8 +181,6 @@ public class Cadastro {
             {
                 s.setPrestadorServico(getPessoaCadastrada(s.getIdPrestadorServico()));
             }        //verifica se o prestador de serviço esta cadastrado
-            else        //se sim, atribui, se nao, inconsistenciaException
-                throw new InconsistenciaException("DEBUG: Precisa?: Prestador de serviço de ID "+s.getIdPrestadorServico()+" não cadastrado para o Servico de ID "+s.getId()+".");
             
             try {//verifica as datas de inicio e fim de vigencia
                 LocalDate data = LocalDate.parse(s.getDatainiString(),formatador);
@@ -201,7 +209,23 @@ public class Cadastro {
 
             if(atendimentoEstaCadastrado(a.getId()))
                 throw new InconsistenciaException("ID repetido "+a.getId()+" na classe Atendimento.");
-            
+            try {
+                LocalDate data = LocalDate.parse(a.getDataString(), formatador);
+                a.setData(data);
+            } catch (DateTimeParseException e) {
+                throw new InconsistenciaException("A data "+a.getDataString()+" do Atendimento "+a.getId()+" é inválida.");
+            }
+            if(!animalEstaCadastrado(a.getIdAnimal()))
+                throw new InconsistenciaException("Animal de ID "+a.getIdAnimal()+" do Atendimento de ID "+a.getId()+" não cadastrado.");
+            a.setAnimalAtendido(getAnimalCadastrado(a.getIdAnimal()));
+
+            if (!servicoValidoParaData(a.getIdServicoPrestado(), a.getData())) {
+                throw new InconsistenciaException("Não há registro de Serviço de ID " + a.getIdServicoPrestado() + " na Data " + a.getDataString() + " para o Atendimento de ID " + a.getId() + ".");
+            } else {
+                a.setServicoPrestado(getServicoValidoParaData(a.getIdServicoPrestado(), a.getData()));
+            }
+
+            atendimentosCadastrados.add(a);
         }
     }
 
@@ -235,6 +259,30 @@ public class Cadastro {
             
             if (!dataVenda.isBefore(inicio) && !dataVenda.isAfter(fim)) {
                 return prod;
+            }
+        }
+    }
+    return null;
+}
+
+    private Animal getAnimalCadastrado(BigInteger idAnimalDesejado)
+    {
+        for(int i = 0; i < animaisCadastrados.size(); i++)
+        {
+            if(animaisCadastrados.get(i).getId().equals(idAnimalDesejado))
+                return animaisCadastrados.get(i);
+        }
+        return null;
+    }
+
+    private Servico getServicoValidoParaData(BigInteger idServico, LocalDate dataAtendimento) {
+    for (Servico serv : servicosCadastrados) {
+        if (serv.getId().equals(idServico)) {
+            LocalDate inicio = serv.getDataInicio();
+            LocalDate fim = serv.getDatafim();
+            
+            if (!dataAtendimento.isBefore(inicio) && !dataAtendimento.isAfter(fim)) {
+                return serv;
             }
         }
     }
@@ -338,8 +386,23 @@ public class Cadastro {
             }
         }
     }
-    return false;
-}
+        return false;
+    }
+
+    private boolean servicoValidoParaData(BigInteger idServico, LocalDate dataAtendimento) {
+        for (Servico serv : servicosCadastrados) {
+            if (serv.getId().equals(idServico)) {
+                LocalDate inicio = serv.getDataInicio();
+                LocalDate fim = serv.getDatafim();
+                
+                // Verifica se a data do atendimento está dentro do período de vigência
+                if (!dataAtendimento.isBefore(inicio) && !dataAtendimento.isAfter(fim)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     
 
     //Getters para o GeraRelatorio
