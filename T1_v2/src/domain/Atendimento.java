@@ -10,6 +10,7 @@ public class Atendimento {
     private final String dataString;
     private final BigInteger id;
     private final BigInteger idAnimal;
+    private Animal animalAtendido;
 
         public Atendimento(BigInteger idServicoPrestado, String data, BigInteger id, BigInteger idAnimal) {
         this.idServicoPrestado = idServicoPrestado;
@@ -48,6 +49,10 @@ public class Atendimento {
 
     public void setData(LocalDate data) {
         this.data = data;
+    }
+
+    public void setAnimalAtendido(Animal animalAtendido) {
+        this.animalAtendido = animalAtendido;
     }
 
 
