@@ -44,9 +44,8 @@ public class Cadastro {
             if(pessoaEstaCadastrada(p.getId()))
                 throw new InconsistenciaException("ID repetido "+p.getId()+" na classe Pessoa");
             
-            if(p instanceof PessoaFisica)
+            if(p instanceof PessoaFisica pf)
             {
-                PessoaFisica pf = (PessoaFisica)p;
                 try {
                     LocalDate data = LocalDate.parse(pf.getDataString(),formatador);
                     pf.setData(data);
