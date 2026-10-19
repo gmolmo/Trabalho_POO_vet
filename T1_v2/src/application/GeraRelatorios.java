@@ -2,14 +2,14 @@ package application;
 
 import domain.Animal;
 import domain.Atendimento;
-import domain.ClienteRelatorio;
-import domain.ItemRelatorio;
 import domain.Pessoa;
 import domain.PessoaFisica;
-import domain.PrestadorRelatorio;
 import domain.Produto;
 import domain.Servico;
 import domain.Venda;
+import domain.reportClasses.ClienteRelatorio;
+import domain.reportClasses.ItemRelatorio;
+import domain.reportClasses.PrestadorRelatorio;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,6 +19,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class GeraRelatorios
@@ -48,6 +51,8 @@ public class GeraRelatorios
                 if(!existeRegistroAno(ano))
                 {
                     escritor.println("Não há registros contábeis para o ano " + ano + ".");
+                    escritor.println("");
+
                     continue;
                 }
                 else
@@ -60,7 +65,7 @@ public class GeraRelatorios
                         ArrayList<ItemRelatorio> produtosFamilia = processaProdutosFamilia(familia, ano);
                         if (produtosFamilia.isEmpty())
                         {
-                            escritor.println("Não há registros");
+                            escritor.println("Não há registros.");
                             escritor.println("");
 
                         }
@@ -80,7 +85,7 @@ public class GeraRelatorios
                         ArrayList<ItemRelatorio> servicosFamilia = processaServicosFamilia(familia, ano);
                         if (servicosFamilia.isEmpty())
                         {
-                            escritor.println("Não há registros");
+                            escritor.println("Não há registros.");
                             escritor.println("");
 
                         }
@@ -126,7 +131,7 @@ public class GeraRelatorios
                 });
                 if (prestadores.isEmpty())
                 {
-                    escritor.println("Não há registros");
+                    escritor.println("Não há registros.");
                     escritor.println("");
                 }
                 else
@@ -134,7 +139,7 @@ public class GeraRelatorios
                     for (PrestadorRelatorio pr : prestadores)
                     {
                         String servicosStr = String.join(", ", pr.getServicosExecutados());
-                        escritor.println(pr.getTipo() + "; " + pr.getNome() + "; " + formataMoeda(pr.getValorRecebido()) + "; " + servicosStr);
+                        escritor.println(pr.getTipo() + "; " + pr.getNome() + "; " + formataMoeda(pr.getValorRecebido()*0.8) + "; " + servicosStr);
                     }
                     escritor.println("");
                 }
@@ -160,7 +165,7 @@ public class GeraRelatorios
                 });
 
                 if (clientes.isEmpty()) {
-                    escritor.println("Não há registros");
+                    escritor.println("Não há registros.");
                     escritor.println("");
                 } else {
                     for (ClienteRelatorio cr : clientes) {
@@ -170,16 +175,43 @@ public class GeraRelatorios
                         escritor.println("Produtos:");
                         if (cr.getComprasFeitas().isEmpty())
                         {
-                            escritor.println("Não há registros");
+                            escritor.println("Não há registros.");
                             escritor.println("");
                         } 
                         else
                         {
+                            Map<Produto, Integer> produtosAgrupados = new LinkedHashMap<>();
+
                             for (Venda v : cr.getComprasFeitas())
                             {
                                 Produto prod = v.getProdutoVendido();
-                                double totalVenda = v.getQuantidade() * prod.getPrecoVenda();
-                                escritor.println(prod.getNome() + "; " + v.getQuantidade() + "; " + formataMoeda(totalVenda));
+                                if (prod != null) {
+                                    produtosAgrupados.put(
+                                        prod, 
+                                        produtosAgrupados.getOrDefault(prod, 0) + v.getQuantidade()
+                                    );
+                                }
+                            }
+
+                            List<Map.Entry<Produto, Integer>> listaProdutos = new ArrayList<>(produtosAgrupados.entrySet());
+
+                            listaProdutos.sort((e1, e2) -> {
+                                double total1 = e1.getValue() * e1.getKey().getPrecoVenda();
+                                double total2 = e2.getValue() * e2.getKey().getPrecoVenda();
+                                
+                                int compValor = Double.compare(total2, total1);
+                                if (compValor != 0) return compValor;
+                                
+                                return e1.getKey().getNome().compareTo(e2.getKey().getNome());
+                            });
+
+                            for (Map.Entry<Produto, Integer> entry : listaProdutos)
+                            {
+                                Produto prod = entry.getKey();
+                                int qtdTotal = entry.getValue();
+                                double totalVenda = qtdTotal * prod.getPrecoVenda();
+                                
+                                escritor.println(prod.getNome() + "; " + formataMoeda(totalVenda));
                             }
                             escritor.println("");
                         }
@@ -187,28 +219,48 @@ public class GeraRelatorios
                         for (String familia : animaisSuportados)
                         {
                             escritor.println("Serviços para " + familia + ":");
-                            boolean temServicoFamilia = false;
+                            
+                            Map<String, Double> servicosAgrupados = new LinkedHashMap<>();
                             
                             for (Atendimento a : cr.getAtendimentosFeitos())
                             {
                                 if (a.getAnimalAtendido().getFamilia().equalsIgnoreCase(familia))
                                 {
                                     Servico serv = a.getServicoPrestado();
-                                        temServicoFamilia = true;
-                                        escritor.println(serv.getNome() + "; " + formataMoeda(serv.getPreco()));
+                                    if (serv != null) {
+                                        servicosAgrupados.put(
+                                            serv.getNome(), 
+                                            servicosAgrupados.getOrDefault(serv.getNome(), 0.0) + serv.getPreco()
+                                        );
+                                    }
                                 }
                             }
-                            if (!temServicoFamilia)
+
+                            if (servicosAgrupados.isEmpty())
                             {
-                                escritor.println("Não há registros");
+                                escritor.println("Não há registros.");
                                 escritor.println("");
                             }
-                            escritor.println("");
+                            else
+                            {
+                                List<Map.Entry<String, Double>> listaServicos = new ArrayList<>(servicosAgrupados.entrySet());
+                                listaServicos.sort((e1, e2) -> {
+                                    int compValor = Double.compare(e2.getValue(), e1.getValue());
+                                    if (compValor != 0) return compValor;
+                                    return e1.getKey().compareTo(e2.getKey());
+                                });
 
+                                for (Map.Entry<String, Double> entry : listaServicos)
+                                {
+                                    escritor.println(entry.getKey() + "; " + formataMoeda(entry.getValue()));
+                                }
+                                escritor.println("");
+                            }
                         }
                     }
                 }
             }
+        
         } catch (IOException e) {
             System.out.println("Erro de I/O");
         }
@@ -314,7 +366,7 @@ public class GeraRelatorios
 
             for (Atendimento a : cadastro.getAtendimentosCadastrados())
             {
-                if (a.getId().equals(s.getId()) && a.getData().getYear() == ano)
+                if (a.getIdServicoPrestado().equals(s.getId()) && a.getData().getYear() == ano)
                 {
                     Animal animal = a.getAnimalAtendido();
                     if (animal.getFamilia().equalsIgnoreCase(familia))
@@ -371,7 +423,7 @@ public class GeraRelatorios
             {
                 for (Atendimento a : cadastro.getAtendimentosCadastrados()) 
                 {
-                    if (a.getId().equals(s.getId()) && a.getData().getYear() == ano) 
+                    if (a.getIdServicoPrestado().equals(s.getId()) && a.getData().getYear() == ano) 
                     {
                         Animal animal = a.getAnimalAtendido();
                         if (!a.getData().isBefore(s.getDataInicio()) && !a.getData().isAfter(s.getDatafim()))
@@ -411,7 +463,7 @@ public class GeraRelatorios
             {
                 for (Atendimento a : cadastro.getAtendimentosCadastrados())
                 {
-                    if (a.getId().equals(s.getId()) && a.getData().getYear() == ano)
+                    if (a.getIdServicoPrestado().equals(s.getId()) && a.getData().getYear() == ano)
                     {
                         Animal animal = a.getAnimalAtendido();
                         if (!a.getData().isBefore(s.getDataInicio()) && !a.getData().isAfter(s.getDatafim()))
@@ -427,7 +479,7 @@ public class GeraRelatorios
     }
     private String formataMoeda(double valor)
     {
-        return String.format(java.util.Locale.of("pt", "BR"), "R$ %.2f", valor);
+        return String.format(Locale.of("pt", "BR"), "R$ %.2f", valor);
     }
 
 //métodos para auxiliar o relatório de prestadores
@@ -437,13 +489,20 @@ public class GeraRelatorios
         for(Pessoa p : cadastro.getPessoasCadastradas())
         {
             String tipo;
-            if(p instanceof PessoaFisica)tipo = "PF";
-            else tipo = "PJ";
+            if(p instanceof PessoaFisica)
+            {
+                tipo = "PF";
+            }
+            else
+            {
+                tipo = "PJ";
+            }
 
             double valorRecebido = 0.0;
-            int nAtendimentos = 0;
+            int nAtendimentosTotal = 0;
 
-            Map<Servico,Integer> contagemServicos = new HashMap<>();
+            Map<Servico, Integer> contagemServicos = new HashMap<>();
+
             for (Servico s : cadastro.getServicosCadastrados())
             {
                 if (s.getPrestadorServico().getId().equals(p.getId()))
@@ -452,33 +511,37 @@ public class GeraRelatorios
 
                     for (Atendimento a : cadastro.getAtendimentosCadastrados())
                     {
-                        if (a.getId().equals(s.getId()) && a.getData().getYear() == ano) 
+                        if (a.getIdServicoPrestado().equals(s.getId()) && a.getData().getYear() == ano)
                         {
-                            if (!a.getData().isBefore(s.getDataInicio()) && !a.getData().isAfter(s.getDatafim())) 
+                            if (!a.getData().isBefore(s.getDataInicio()) && !a.getData().isAfter(s.getDatafim()))
                             {
                                 contagemServicos.put(s, contagemServicos.get(s) + 1);
                                 valorRecebido += s.getPreco();
-                                nAtendimentos++;
+                                nAtendimentosTotal++;
                             }
                         }
                     }
                 }
             }
 
-            if (tipo.equals("PF") && nAtendimentos == 0) {
+            if (tipo.equals("PF") && nAtendimentosTotal == 0)
+            {
                 continue;
             }
 
             String[] servicosFormatados;
-            if (nAtendimentos == 0) {
+            if (contagemServicos.isEmpty())
+            {
                 servicosFormatados = new String[]{"-"};
-            } 
+            }
             else
             {
                 ArrayList<Map.Entry<Servico, Integer>> entradas = new ArrayList<>(contagemServicos.entrySet());
-
-                entradas.removeIf(entry -> entry.getValue() == 0);
-                entradas.sort((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()));
+                entradas.sort((e1, e2) -> {
+                    int compCount = Integer.compare(e2.getValue(), e1.getValue());
+                    if (compCount != 0) return compCount;
+                    return e1.getKey().getNome().compareTo(e2.getKey().getNome());
+                });
 
                 servicosFormatados = new String[entradas.size()];
                 for (int i = 0; i < entradas.size(); i++)
@@ -488,7 +551,6 @@ public class GeraRelatorios
             }
 
             listaPrestadores.add(new PrestadorRelatorio(tipo, p.getNome(), valorRecebido, servicosFormatados));
-
         }
         return listaPrestadores;
     }

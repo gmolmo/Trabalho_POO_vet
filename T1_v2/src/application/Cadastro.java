@@ -42,7 +42,7 @@ public class Cadastro {
         {
             Pessoa p = pessoasRecebidas.get(i);
             if(pessoaEstaCadastrada(p.getId()))
-                throw new InconsistenciaException("ID repetido "+p.getId()+" na classe Pessoa");
+                throw new InconsistenciaException("ID repetido "+p.getId()+" na classe Pessoa.");
             
             if(p instanceof PessoaFisica pf)
             {
@@ -74,14 +74,14 @@ public class Cadastro {
 
             if( !pessoaEstaCadastrada(a.getIdTutor()))//se nao, tenta ligar o tutor  
             {//se o tutor nao existir->inconsistencia exception
-                throw new InconsistenciaException("O Tutor de ID "+a.getIdTutor()+" do Animal de ID "+a.getId()+" não cadastrado.");
+                throw new InconsistenciaException("O Tutor de ID "+a.getIdTutor()+" do Animal de ID "+a.getId()+" não está cadastrado.");
             }
             else
             {
                 PessoaFisica tutor = getPessoaFisicaCadastrada(a.getIdTutor());
                 if(tutor == null)
                 {
-                    throw new InconsistenciaException("O Tutor de ID "+a.getIdTutor()+" do Animal de ID "+a.getId()+" não cadastrado.");
+                    throw new InconsistenciaException("O Tutor de ID "+a.getIdTutor()+" do Animal de ID "+a.getId()+" não está cadastrado.");
                 }
                 else
                     a.setTutor(tutor);

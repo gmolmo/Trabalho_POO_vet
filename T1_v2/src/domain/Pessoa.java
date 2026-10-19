@@ -3,10 +3,10 @@ package domain;
 import java.math.BigInteger;
 
 public abstract class Pessoa {
-    public String nome;
-    public String endereco;
-    public String telefone;
-    public BigInteger id;
+    private final String nome;
+    private final String endereco;
+    private final String telefone;
+    private final BigInteger id;
 
     public Pessoa(String nome, String endereco, String telefone, BigInteger id) {
         this.nome = nome;
