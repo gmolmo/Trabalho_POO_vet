@@ -17,6 +17,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+/**
+ * A classe {@code Leitura} gerencia a entrada de informações de arquivos csv e gera listas de objetos lidos. 
+ * <p> 
+ * Atua puramente como um leitor de entradas csv, sem conferência de inconsistências.
+ */
 public class Leitura {
     Path caminhoPessoas;
     Path caminhoAnimais;
@@ -26,6 +31,11 @@ public class Leitura {
     Path caminhoVendas;
     String diretorio;
 
+    /**
+     * Consrtutor padrão da classe.
+     * @param diretorio onde estarão os arquivos necessários para leitura
+     * @throws IOException ,caso a pasta não exista
+    */
     public Leitura(String diretorio) throws IOException
     {
         Path dirPath = Paths.get(diretorio);
@@ -40,6 +50,12 @@ public class Leitura {
         this.caminhoAtendimentos = Paths.get(diretorio, "atendimentos.csv");
         this.caminhoVendas = Paths.get(diretorio, "vendas.csv");
     }
+
+/*-----------------Métodos para leitura dos arquivos-----------------*/
+/*Todos retornam um ArrayList do tipo específico que foi lido*/
+/*Todos possuem um throw da IOException caso não seja possível ler os arquivos referenciados */
+
+
     public ArrayList<Pessoa> LePessoas() throws IOException{
         ArrayList<Pessoa> pessoas = new ArrayList<>();
 
@@ -52,7 +68,7 @@ public class Leitura {
                     continue;
                 String[] partes = linha.split(";");
 
-                switch (partes[1]) {
+                switch (partes[1]) {//verifica o tipo lido para atribuir o restante da linha
                     case "F":
                         PessoaFisica p = new PessoaFisica(partes[2].trim(), partes[4].trim(), partes[3].trim(), new BigInteger(partes[0].trim()), partes[5].trim(), partes[6].trim());
                         pessoas.add(p);

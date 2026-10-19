@@ -24,26 +24,61 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * A classe {@code GeraRelatorios} é responsável por processar os dados contábeis 
+ * consolidados na classe {@link Cadastro} e gerar os três relatórios
+ * <p>
+ * Os relatórios gerados são: 
+ * (1) Relatório Financeiro (faturamento e lucro por família de pets);
+ * (2) Estatísticas dos Prestadores de Serviço (valores e serviços realizados);
+ * (3) Estatísticas dos Clientes Cadastrados (gastos detalhados por produtos e serviços)
+ */
 public class GeraRelatorios
 {
-    private Cadastro cadastro;
+    private final Cadastro cadastro;
     private final String[] animaisSuportados = {"Aves", "Cães", "Felinos", "Roedores"};
-    private ArrayList<Integer> anos;
+    private final ArrayList<Integer> anos;
     private final String diretorioBase;
-    private File pastaSaida;
+    File pastaSaida;
 
+    /**
+     * Construtor da classe de geração de relatórios.
+     * <p>
+     * Inicializa os parâmetros de diretório e cria automaticamente a subpasta 
+     * "saida" caso ela ainda não exista, garantindo que os relatórios possam ser gravados.
+     * 
+     * @param cadastro      Objeto contendo as listas de entidades já processadas e validadas
+     * @param anos          Lista de anos inteiros informados pelo usuário para emissão dos relatórios
+     * @param diretorioBase Caminho do diretório raiz passado por args0
+     */
     public GeraRelatorios(Cadastro cadastro, ArrayList<Integer> anos, String diretorioBase) {
         this.cadastro = cadastro;
         this.anos = anos;
         this.diretorioBase = diretorioBase;
+        
         this.pastaSaida = new File(diretorioBase, "saida");
+        
+        // Verifica e cria a pasta de saída se ela não existir no sistema de arquivos
         if (!pastaSaida.exists())
             pastaSaida.mkdirs();
     }
 
+/**
+     * Gera o Relatório Financeiro (01-relatorio.csv) para cada ano
+     * <p>
+     * O relatório detalha por família de animais:
+     * - Produtos vendidos e seus faturamentos
+     * - Atendimentos realizados, prestadores e faturamentos
+     * - Resumo contendo o faturamento total e o lucro líquido da empresa no ano
+     * <p>
+     * Utiliza o modo append (`true`) no {@code FileOutputStream} para suportar múltiplos anos na mesma execução, gravando em UTF-8
+     */
     public void geraRelatorioFinanceiro()
     {
+        // Define o arquivo de destino do relatório financeiro na pasta "saida"
         File arquivoSaida = new File(this.pastaSaida, "01-relatorio.csv");
+        
+        // Abre o PrintWriter com codificação UTF-8 e modo append (true) para escrita em arquivo
         try (PrintWriter escritor = new PrintWriter(new OutputStreamWriter(new FileOutputStream(arquivoSaida, true), StandardCharsets.UTF_8)))
         {
             for(Integer ano : this.anos)
@@ -52,46 +87,52 @@ public class GeraRelatorios
                 {
                     escritor.println("Não há registros contábeis para o ano " + ano + ".");
                     escritor.println("");
-
-                    continue;
+                    continue;// Pula para o próximo ano da lista sem processar o resto
                 }
                 else
                 {
-                    escritor.println("Relatório do ano " + ano);
+                    escritor.println("Relatório do ano " + ano);// Cabeçalho do relatório para o ano com registros válidos
                     escritor.println("");
+                    
+                    // Loop pelas famílias de pets
                     for (String familia : animaisSuportados)
                     {
                         escritor.println("Produtos Vendidos Para " + familia + ":");
+                        
+                        // Busca os produtos filtrados e ordenados por faturamento e nome para a família atual
                         ArrayList<ItemRelatorio> produtosFamilia = processaProdutosFamilia(familia, ano);
+                        
                         if (produtosFamilia.isEmpty())
                         {
-                            escritor.println("Não há registros.");
+                            escritor.println("Não há registros.");// Caso não haja vendas de produtos para esta família no ano
                             escritor.println("");
-
                         }
                         else
                         {
                             for (ItemRelatorio item : produtosFamilia)
                             {
-                                escritor.println(item.getNome() + "; " + formataMoeda(item.getFaturamento()));
+                                escritor.println(item.getNome() + "; " + formataMoeda(item.getFaturamento()));// Imprime cada produto vendido e seu respectivo faturamento formatado em moeda
                             }
                             escritor.println("");
-
                         }
                     }
+                    
+                    // Loop pelas famílias de pets para processar os atendimentos
                     for (String familia : animaisSuportados)
                     {
                         escritor.println("Atendimentos Realizados em " + familia + ":");
+                        
+                        // Busca os serviços realizados filtrados e ordenados para a família e ano atuais
                         ArrayList<ItemRelatorio> servicosFamilia = processaServicosFamilia(familia, ano);
+                        
                         if (servicosFamilia.isEmpty())
                         {
-                            escritor.println("Não há registros.");
+                            escritor.println("Não há registros.");// Caso não haja atendimentos para esta família no ano
                             escritor.println("");
-
                         }
                         else
                         {
-                            for (ItemRelatorio item : servicosFamilia)
+                            for (ItemRelatorio item : servicosFamilia)// Imprime o serviço, o prestador e o faturamento cobrado
                             {
                             escritor.println(item.getNome() + "; " + formataMoeda(item.getFaturamento()));
                             }
@@ -99,7 +140,7 @@ public class GeraRelatorios
                         }
                         
                     }
-                }
+                }                
                 escritor.println("Resumo:");
                 escritor.println("Total faturado em " + ano + ": " + formataMoeda(calculaFaturamentoAno(ano)));
                 escritor.println("Lucro total em " + ano + ": " + formataMoeda(calculaLucroAno(ano)));
@@ -109,9 +150,18 @@ public class GeraRelatorios
             System.out.println("Erro de I/O");
         }
     }
+    /**
+     * Gera o Relatório de Estatísticas dos Prestadores de Serviço (02-estatisticas-prestadores.csv)
+     * <p>
+     * Lista todos os prestadores (PF e PJ) ordenados por tipo ("PF" antes de "PJ"), 
+     * valor recebido (do maior para o menor) e por fim, ordem alfabética do nome
+     * Exibe o tipo, nome, o valor de lucro .80 recebido pelo prestador e a lista de serviços executados
+     */
     public void geraEstatisticaPrestadores()
     {
         File arquivoSaida = new File(this.pastaSaida, "02-estatisticas-prestadores.csv");
+        
+        // Abre o PrintWriter em UTF-8 com suporte a append (true) para acumular múltiplos anos
         try (PrintWriter escritor = new PrintWriter(new OutputStreamWriter(new FileOutputStream(arquivoSaida, true), StandardCharsets.UTF_8)))
         {
             for(Integer ano : anos)
@@ -119,26 +169,31 @@ public class GeraRelatorios
                 escritor.println("Estatísticas dos Prestadores em "+ano);
                 escritor.println("");
 
+                // Processa a lista de prestadores para o ano atual
                 ArrayList<PrestadorRelatorio> prestadores = processaEstatisticaPrestadores(ano);
+                
                 prestadores.sort((p1, p2) -> {
                     int compTipo = p1.getTipo().compareTo(p2.getTipo());
-                    if (compTipo != 0) return compTipo;
+                    if (compTipo != 0) return compTipo; //Ordena pelo tipo -> "PF" vem antes de "PJ"
 
                     int compValor = Double.compare(p2.getValorRecebido(), p1.getValorRecebido());
-                    if (compValor != 0) return compValor;
+                    if (compValor != 0) return compValor;//Ordena pelo valor do maior para o menor
 
-                    return p1.getNome().compareTo(p2.getNome());
+                    return p1.getNome().compareTo(p2.getNome());//Desempate alfabético pelo nome do prestador
                 });
-                if (prestadores.isEmpty())
+                
+                if (prestadores.isEmpty()) // Verifica se a lista de prestadores retornou vazia para o ano
                 {
                     escritor.println("Não há registros.");
                     escritor.println("");
                 }
                 else
                 {
-                    for (PrestadorRelatorio pr : prestadores)
+                    for (PrestadorRelatorio pr : prestadores)// para cada prestador ordenado para imprimir suas estatísticas
                     {
+                        // Junta os serviços executados em uma única string separados por vírgula
                         String servicosStr = String.join(", ", pr.getServicosExecutados());
+                        // Imprime o tipo, nome, o valor repassado ao prestador (80% do faturamento) e a lista de serviços
                         escritor.println(pr.getTipo() + "; " + pr.getNome() + "; " + formataMoeda(pr.getValorRecebido()*0.8) + "; " + servicosStr);
                     }
                     escritor.println("");
@@ -266,7 +321,12 @@ public class GeraRelatorios
         }
     }
 
-//métodos para auxiliar o relatório financeiro
+    /**
+     * Verifica se existe pelo menos um produto ou serviço vigente dentro do ano informado
+     * <p>
+     * @param ano O ano a ser verificado
+     * @return true se houver ao menos um registro contábil vigente no ano, caso contrário false
+     */
     private boolean existeRegistroAno(Integer ano)
     {
         LocalDate dataInicio = LocalDate.of(ano, 1, 1);
@@ -274,48 +334,69 @@ public class GeraRelatorios
 
         for (Produto p : cadastro.getProdutosCadastrados())
         {
+            // Valida se o intervalo de vigência do produto intercepta o ano consultado
             if (!p.getInicioVigencia().isAfter(dataFim) && !p.getFimVigencia().isBefore(dataInicio)) {
                 return true;
             }
         }
+        // Itera sobre todos os serviços cadastrados para verificar vigência no ano
         for (Servico s : cadastro.getServicosCadastrados())
         {
+            // Valida se o intervalo de vigência do serviço intercepta o ano consultado
             if (!s.getDataInicio().isAfter(dataFim) && !s.getDatafim().isBefore(dataInicio)) {
                 return true;
             }
         }
 
+        // Retorna falso caso nenhum produto ou serviço possua vigência no ano 
         return false;
     }
+    /**
+     * Processa e retorna a lista de produtos vendidos para uma determinada família de pets em um ano
+     * <p>
+     * 
+     * @param familia A família de animais 
+     * @param ano     O ano de referência para o relatório
+     * @return        Uma lista de objetos {@link ItemRelatorio} contendo o nome, faturamento e lucro de cada produt
+     */
     private ArrayList<ItemRelatorio> processaProdutosFamilia(String familia, Integer ano)
     {
         ArrayList<ItemRelatorio> produtos = new ArrayList<>();
+        
         LocalDate dataInicio = LocalDate.of(ano, 1, 1);
         LocalDate dataFim = LocalDate.of(ano, 12, 31);
 
-        for(Produto p : cadastro.getProdutosCadastrados())
+        
+        for(Produto p : cadastro.getProdutosCadastrados())// para cada produto cadastrado no sistema
         {
             boolean atendeFamilia = false;
-            for (String f : p.getAnimaisDestinados())
+            
+            for (String f : p.getAnimaisDestinados())// Verifica se o produto atende à família de animais solicitada
+
             {
                 if (f.equalsIgnoreCase(familia))
                 {
                     atendeFamilia = true;
-                    break;
+                    break; // Encontrou a família, para
                 }
             }
-            if(!atendeFamilia)
+            
+            if(!atendeFamilia)// Se o produto não atende à família atual, próximo
                 continue;
 
+            // Valida se o produto estava vigente no ano
             boolean vigente = !p.getInicioVigencia().isAfter(dataFim) && !p.getFimVigencia().isBefore(dataInicio);
-            if (!vigente) continue;
+            
+            if (!vigente) continue;// Se o produto não estava vigente no ano, próximo
 
             double faturamento = 0.0;
             double lucro = 0.0;
 
-            for (Venda v : cadastro.getVendasCadastradas())
+            
+            for (Venda v : cadastro.getVendasCadastradas())//para cada venda cadastrada
             {
-                if (v.getIdProduto().equals(p.getId()) && v.getDataVenda().getYear() == ano)
+                if (v.getIdProduto().equals(p.getId()) && v.getDataVenda().getYear() == ano)// pega vendas do produto atual e realizadas no ano
+
                 {
                     double fatVenda = v.getQuantidade() * p.getPrecoVenda();
                     double lucVenda = v.getQuantidade() * (p.getPrecoVenda() - p.getPrecoCompra());
@@ -324,18 +405,21 @@ public class GeraRelatorios
                     lucro += lucVenda;
                 }
             }
+            
+            // Adiciona o itemRelatorio à lista mesmo que o faturamento seja zero
             produtos.add(new ItemRelatorio(p.getNome(), faturamento, lucro));
         }
 
+        // Ordena a lista de produtos maior faturamento e desempate por nome
         produtos.sort((i1, i2) -> {
             int comp = Double.compare(i2.getFaturamento(), i1.getFaturamento());
             if (comp != 0) {
-                return comp;
+                return comp; //comparação por faturamento decrescente
             }
-            return i1.getNome().compareTo(i2.getNome());
+            return i1.getNome().compareTo(i2.getNome());//ordem alfabética do nome
         });
 
-        return produtos;
+        return produtos;// Retorna a lista pronta para ser impressa
     }   
     private ArrayList<ItemRelatorio> processaServicosFamilia(String familia, Integer ano) {
 

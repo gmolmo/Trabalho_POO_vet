@@ -13,6 +13,12 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
+/**
+ * A classe {@code Cadastro} gerencia o armazenamento em memória e a validação 
+ * de consistência de todas as entidades do sistema (pessoas, animais, produtos, serviços, vendas e atendimentos).
+ * <p>
+ * Atua como um gerenciador de regras de entrada para validação dos objetos que foram criados
+ */
 public class Cadastro {
     private ArrayList<Pessoa> pessoasCadastradas;
     private ArrayList<Animal> animaisCadastrados;
@@ -25,6 +31,9 @@ public class Cadastro {
 
     private final DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    /**
+     * Construtor padrão da classe. Inicializa as listas dinâmicas que receberão as instâncias processadas.
+     */
     public Cadastro()
     {
         this.pessoasCadastradas = new ArrayList<>();
@@ -35,7 +44,13 @@ public class Cadastro {
         this.atendimentosCadastrados = new ArrayList<>();
     }
 
-    //metodos que ligam classes dependentes, checam inconsistencias e resultam em listas cadastradas validas
+    /**
+     * Processa a lista de pessoas recebida do arquivo CSV, validando a existência 
+     * do ID único e o formato da data de nascimento.
+     * 
+     * @param pessoasRecebidas Lista de objetos {@link Pessoa} brutos lidos do arquivo.
+     * @throws InconsistenciaException Se houver ID repetido ou data inválida
+     */
     public void processaPessoas(ArrayList<Pessoa> pessoasRecebidas) throws InconsistenciaException
     {
         for(int i = 0; i<pessoasRecebidas.size();i++)
@@ -63,6 +78,14 @@ public class Cadastro {
         //Se não, parseia a data para setar
         //se gerar inconsistencia, cathcar ela e lançar a inconsistencia exception com a dataString invalidada
     }
+
+    /**
+     * Processa a lista de animais recebida do arquivo CSV, validando a existência 
+     * do ID único, se possui tutor válido, o formato da data de nascimento e a família ser suportada.
+     * 
+     * @param animaisRecebidos Lista de objetos {@link Animal} brutos lidos do arquivo.
+     * @throws InconsistenciaException Se houver ID repetido ou data inválida, família não suportada ou tutor inexistente
+     */
     public void processaAnimais(ArrayList<Animal> animaisRecebidos) throws InconsistenciaException
     {
         //confere se o animal já existe no array
@@ -105,6 +128,14 @@ public class Cadastro {
         }
                 
     }
+
+    /**
+     * Processa a lista de produtos recebidos do arquivo CSV, validando a existência 
+     * do ID único com data de vigência e o formato da data de vigência.
+     * 
+     * @param produtosRecebidos Lista de objetos {@link Produto} brutos lidos do arquivo.
+     * @throws InconsistenciaException Se houver ID repetido ou data inválida
+     */
     public void processaProdutos(ArrayList<Produto> produtosRecebidos) throws InconsistenciaException
     {
         for(int i = 0; i < produtosRecebidos.size(); i++)
@@ -133,6 +164,14 @@ public class Cadastro {
         }
         
     }
+
+    /**
+     * Processa a lista de vendas recebidos do arquivo CSV, validando a existência 
+     * do ID único e o formato da data, além da existência do cliente e produto válido.
+     * 
+     * @param vendasRecebidas Lista de objetos {@link Venda} brutos lidos do arquivo.
+     * @throws InconsistenciaException Se houver ID repetido, data inválida, produto inválido ou cliente inválido.
+     */
     public void processaVendas(ArrayList<Venda> vendasRecebidas) throws InconsistenciaException
     {
         for(int i = 0; i < vendasRecebidas.size(); i++)
@@ -170,7 +209,14 @@ public class Cadastro {
             vendasCadastradas.add(v);
 
         }
-    }   
+    } 
+    /**
+     * Processa a lista de serviços recebidos do arquivo CSV, validando a existência 
+     * do ID único com data de vigência e o formato da data de vigência.
+     * 
+     * @param servicosRecebidos Lista de objetos {@link Servico} brutos lidos do arquivo.
+     * @throws InconsistenciaException Se houver ID repetido ou data inválida
+     */
     public void processaServicos(ArrayList<Servico> servicosRecebidos) throws InconsistenciaException
     { 
         for(int i = 0; i < servicosRecebidos.size(); i++)
@@ -200,6 +246,14 @@ public class Cadastro {
             servicosCadastrados.add(s);
         }
     }
+
+    /**
+     * Processa a lista de atendimentos recebidos do arquivo CSV, validando a existência 
+     * do ID único e o formato da data, além da existência do cliente, animal e serviço válido.
+     * 
+     * @param vendasRecebidas Lista de objetos {@link Venda} brutos lidos do arquivo.
+     * @throws InconsistenciaException Se houver ID repetido, data inválida, produto inválido ou cliente inválido.
+     */
     public void processaAtendimentos(ArrayList<Atendimento> atendimentosRecebidos) throws InconsistenciaException
     {
         for(int i = 0; i < atendimentosRecebidos.size(); i++)
@@ -228,8 +282,7 @@ public class Cadastro {
         }
     }
 
-    //FAZER OS MÉTODOS GETITEMARRAY PARA CADA TIPO QUE PRECISA SER "LIGADO"
-
+/*---------------- Métodos Auxiliares------------- */
     private Pessoa getPessoaCadastrada(BigInteger idDesejado)
     {
         for(int i = 0; i < this.pessoasCadastradas.size(); i++)
@@ -239,7 +292,6 @@ public class Cadastro {
         }
         return null;
     }
-
     private PessoaFisica getPessoaFisicaCadastrada(BigInteger idDesejado)
     {
         for(int i = 0; i < this.pessoasCadastradas.size(); i++)
@@ -249,21 +301,23 @@ public class Cadastro {
         }
         return null;
     }
-
-    private Produto getProdutoValidoParaVenda(BigInteger idProdutoDesejado, LocalDate dataVenda) {
-    for (Produto prod : produtosCadastrados) {
-        if (prod.getId().equals(idProdutoDesejado)) {
-            LocalDate inicio = prod.getInicioVigencia();
-            LocalDate fim = prod.getFimVigencia();
-            
-            if (!dataVenda.isBefore(inicio) && !dataVenda.isAfter(fim)) {
-                return prod;
+    private Produto getProdutoValidoParaVenda(BigInteger idProdutoDesejado, LocalDate dataVenda)
+    {
+        for (Produto prod : produtosCadastrados)
+        {
+            if (prod.getId().equals(idProdutoDesejado))
+            {
+                LocalDate inicio = prod.getInicioVigencia();
+                LocalDate fim = prod.getFimVigencia();
+                
+                if (!dataVenda.isBefore(inicio) && !dataVenda.isAfter(fim))
+                {
+                    return prod;
+                }
             }
         }
+        return null;
     }
-    return null;
-}
-
     private Animal getAnimalCadastrado(BigInteger idAnimalDesejado)
     {
         for(int i = 0; i < animaisCadastrados.size(); i++)
@@ -274,17 +328,21 @@ public class Cadastro {
         return null;
     }
 
-    private Servico getServicoValidoParaData(BigInteger idServico, LocalDate dataAtendimento) {
-    for (Servico serv : servicosCadastrados) {
-        if (serv.getId().equals(idServico)) {
-            LocalDate inicio = serv.getDataInicio();
-            LocalDate fim = serv.getDatafim();
-            
-            if (!dataAtendimento.isBefore(inicio) && !dataAtendimento.isAfter(fim)) {
-                return serv;
+    private Servico getServicoValidoParaData(BigInteger idServico, LocalDate dataAtendimento)
+    {
+        for (Servico serv : servicosCadastrados)
+        {
+            if (serv.getId().equals(idServico))
+            {
+                LocalDate inicio = serv.getDataInicio();
+                LocalDate fim = serv.getDatafim();
+                
+                if (!dataAtendimento.isBefore(inicio) && !dataAtendimento.isAfter(fim))
+                {
+                    return serv;
+                }
             }
         }
-    }
     return null;
 }
 
@@ -374,28 +432,36 @@ public class Cadastro {
         return true;
     }
 
-    private boolean produtoValidoParaData(BigInteger idProdutoDesejado, LocalDate dataVenda) {
-    for (Produto prod : produtosCadastrados) {
-        if (prod.getId().equals(idProdutoDesejado)) {
-            LocalDate inicio = prod.getInicioVigencia();
-            LocalDate fim = prod.getFimVigencia();
-            
-            if (!dataVenda.isBefore(inicio) && !dataVenda.isAfter(fim)) {
-                return true;
+    private boolean produtoValidoParaData(BigInteger idProdutoDesejado, LocalDate dataVenda)
+    {
+        for (Produto prod : produtosCadastrados)
+        {
+            if (prod.getId().equals(idProdutoDesejado))
+            {
+                LocalDate inicio = prod.getInicioVigencia();
+                LocalDate fim = prod.getFimVigencia();
+                
+                if (!dataVenda.isBefore(inicio) && !dataVenda.isAfter(fim))
+                {
+                    return true;
+                }
             }
         }
-    }
         return false;
     }
 
-    private boolean servicoValidoParaData(BigInteger idServico, LocalDate dataAtendimento) {
-        for (Servico serv : servicosCadastrados) {
-            if (serv.getId().equals(idServico)) {
+    private boolean servicoValidoParaData(BigInteger idServico, LocalDate dataAtendimento)
+    {
+        for (Servico serv : servicosCadastrados)
+        {
+            if (serv.getId().equals(idServico))
+            {
                 LocalDate inicio = serv.getDataInicio();
                 LocalDate fim = serv.getDatafim();
                 
                 // Verifica se a data do atendimento está dentro do período de vigência
-                if (!dataAtendimento.isBefore(inicio) && !dataAtendimento.isAfter(fim)) {
+                if (!dataAtendimento.isBefore(inicio) && !dataAtendimento.isAfter(fim))
+                {
                     return true;
                 }
             }
