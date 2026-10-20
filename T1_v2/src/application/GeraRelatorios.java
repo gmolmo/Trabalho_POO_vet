@@ -179,7 +179,7 @@ public class GeraRelatorios
                     int compValor = Double.compare(p2.getValorRecebido(), p1.getValorRecebido());
                     if (compValor != 0) return compValor;//Ordena pelo valor do maior para o menor
 
-                    return p1.getNome().compareTo(p2.getNome());//Desempate alfabético pelo nome do prestador
+                    return p1.getNome().compareTo(p2.getNome());//Desempate pelo nome do prestador
                 });
                 
                 if (prestadores.isEmpty()) // Verifica se a lista de prestadores retornou vazia para o ano
@@ -204,30 +204,45 @@ public class GeraRelatorios
             System.out.println("Erro de I/O");
         }
     }
+    /**
+     * Gera o Relatório de Estatísticas dos Clientes 03-estatisticas-clientes.csv
+     * <p>
+     * Lista os clientes que tiveram gastos no ano, ordenados do maior para o menor valor total gasto com desempate por nome 
+     * Para cada cliente, detalha os produtos comprados 
+     * e os serviços consumidos agrupados por família de pets, ordenados por valor gasto e nome
+     */
     public void geraEstatisticaClientes() {
         File arquivoSaida = new File(this.pastaSaida, "03-estatisticas-clientes.csv");
+        
+        // Abre o PrintWriter com codificação UTF-8 e suporte a append para múltiplos anos
         try (PrintWriter escritor = new PrintWriter(new OutputStreamWriter(new FileOutputStream(arquivoSaida, true), StandardCharsets.UTF_8))) {
+            
             for (Integer ano : anos) {
-                escritor.println("Estatísticas dos Clientes em " + ano);
+                escritor.println("Estatísticas dos Clientes em " + ano);//cabeçalho
                 escritor.println("");
 
+                // Obtém a lista de clientes com gastos no ano 
                 ArrayList<ClienteRelatorio> clientes = processaEstatisticaClientes(ano);
 
+                // Ordena os clientes pelo total gasto e desempata pelo nome
                 clientes.sort((c1, c2) -> {
                     int compValor = Double.compare(c2.getTotalGasto(), c1.getTotalGasto());
                     if (compValor != 0) return compValor;
                     return c1.getNome().compareTo(c2.getNome());
                 });
 
+                // Se nenhum cliente teve gastos no ano não há registros
                 if (clientes.isEmpty()) {
                     escritor.println("Não há registros.");
                     escritor.println("");
                 } else {
-                    for (ClienteRelatorio cr : clientes) {
+                    for (ClienteRelatorio cr : clientes) {//para cada cliente que gastou
                         escritor.println(cr.getNome() + " gastou " + formataMoeda(cr.getTotalGasto()) + " em:");
                         escritor.println("");
 
                         escritor.println("Produtos:");
+                        
+                        // Se o cliente não fez compras, não há registro de produtos
                         if (cr.getComprasFeitas().isEmpty())
                         {
                             escritor.println("Não há registros.");
@@ -235,6 +250,7 @@ public class GeraRelatorios
                         } 
                         else
                         {
+                            // Mapa para agrupar produtos iguais e somar suas quantidades totais compradas
                             Map<Produto, Integer> produtosAgrupados = new LinkedHashMap<>();
 
                             for (Venda v : cr.getComprasFeitas())
@@ -248,8 +264,10 @@ public class GeraRelatorios
                                 }
                             }
 
+                            // Converte o mapa em lista pra ordenar
                             List<Map.Entry<Produto, Integer>> listaProdutos = new ArrayList<>(produtosAgrupados.entrySet());
 
+                            // Ordena os produtos do cliente por valor gasto e nome 
                             listaProdutos.sort((e1, e2) -> {
                                 double total1 = e1.getValue() * e1.getKey().getPrecoVenda();
                                 double total2 = e2.getValue() * e2.getKey().getPrecoVenda();
@@ -260,6 +278,7 @@ public class GeraRelatorios
                                 return e1.getKey().getNome().compareTo(e2.getKey().getNome());
                             });
 
+                            // Imprime cada produto comprado e o valor total gasto nele
                             for (Map.Entry<Produto, Integer> entry : listaProdutos)
                             {
                                 Produto prod = entry.getKey();
@@ -270,15 +289,16 @@ public class GeraRelatorios
                             }
                             escritor.println("");
                         }
-
-                        for (String familia : animaisSuportados)
+                        for (String familia : animaisSuportados)// Para cada família de animais
                         {
                             escritor.println("Serviços para " + familia + ":");
                             
+                            // Mapa para agrupar serviços pelo nome e somar os valores gastos naquela família
                             Map<String, Double> servicosAgrupados = new LinkedHashMap<>();
                             
                             for (Atendimento a : cr.getAtendimentosFeitos())
                             {
+                                // Filtra atendimentos cujo animal pertença à família atual do loop
                                 if (a.getAnimalAtendido().getFamilia().equalsIgnoreCase(familia))
                                 {
                                     Servico serv = a.getServicoPrestado();
@@ -291,6 +311,7 @@ public class GeraRelatorios
                                 }
                             }
 
+                            // Se não houver serviços para esta família, não tem registros
                             if (servicosAgrupados.isEmpty())
                             {
                                 escritor.println("Não há registros.");
@@ -298,6 +319,7 @@ public class GeraRelatorios
                             }
                             else
                             {
+                                // Converte o mapa de serviços em lista e ordena por valor gasto e nome 
                                 List<Map.Entry<String, Double>> listaServicos = new ArrayList<>(servicosAgrupados.entrySet());
                                 listaServicos.sort((e1, e2) -> {
                                     int compValor = Double.compare(e2.getValue(), e1.getValue());
@@ -305,6 +327,7 @@ public class GeraRelatorios
                                     return e1.getKey().compareTo(e2.getKey());
                                 });
 
+                                // Imprime cada serviço realizado e o valor gasto
                                 for (Map.Entry<String, Double> entry : listaServicos)
                                 {
                                     escritor.println(entry.getKey() + "; " + formataMoeda(entry.getValue()));
@@ -421,8 +444,17 @@ public class GeraRelatorios
 
         return produtos;// Retorna a lista pronta para ser impressa
     }   
-    private ArrayList<ItemRelatorio> processaServicosFamilia(String familia, Integer ano) {
-
+    /**
+     *Lista de serviços para uma determinada família em um ano específico
+     * <p>
+     * Filtra os serviços ofertados compatíveis com a família e vigentes no ano contábil, computa o faturamento total 
+     * e o lucro da empresa, e ordena o resultado do maior para o menor faturamento 
+     * @param familia A família de animais
+     * @param ano     O ano de referência
+     * @return        Uma lista de objetos {@link ItemRelatorio} contendo o nome formatado, faturamento e lucro
+     */
+    private ArrayList<ItemRelatorio> processaServicosFamilia(String familia, Integer ano)
+    {
         ArrayList<ItemRelatorio> listaServicos = new ArrayList<>();
 
         LocalDate dataInicio = LocalDate.of(ano, 1, 1);
@@ -431,25 +463,32 @@ public class GeraRelatorios
         for (Servico s : cadastro.getServicosCadastrados())
         {
             boolean atendeFamilia = false;
+            
+            // Verifica se o serviço atende à família de animais especifica
             for (String f : s.getAnimaisDestinados())
             {
                     if (f.equalsIgnoreCase(familia))
                     {
                         atendeFamilia = true;
-                        break;
+                        break; // Encontrou a família 
                     }
             }
+            
+            // Se o serviço não atende à família atual, proximo
             if (!atendeFamilia) continue;
 
+            // Valida se o serviço estava vigente no ano 
             boolean vigente = !s.getDataInicio().isAfter(dataFim) && !s.getDatafim().isBefore(dataInicio);
+            
+            // Se o serviço não estava vigente no ano,proximo
             if (!vigente) continue;
 
             String nomePrestador = s.getPrestadorServico().getNome();
-
             double faturamento = 0.0;
 
             for (Atendimento a : cadastro.getAtendimentosCadastrados())
             {
+                //atendimentos correspondentes ao serviço atual e realizados no ano 
                 if (a.getIdServicoPrestado().equals(s.getId()) && a.getData().getYear() == ano)
                 {
                     Animal animal = a.getAnimalAtendido();
@@ -462,20 +501,16 @@ public class GeraRelatorios
                     }
                 }
             }
-
             double lucroEmpresa = faturamento * 0.20;
-            
-            String nomeFormatado = s.getNome() + "; " + nomePrestador;
-            
+            String nomeFormatado = s.getNome() + "; " + nomePrestador;            
             listaServicos.add(new ItemRelatorio(nomeFormatado, faturamento, lucroEmpresa));
         }
-
         listaServicos.sort((i1, i2) -> {
-            int comp = Double.compare(i2.getFaturamento(), i1.getFaturamento());
+            int comp = Double.compare(i2.getFaturamento(), i1.getFaturamento());//maior faturamento
             if (comp != 0) {
                 return comp;
             }
-            return i1.getNome().compareTo(i2.getNome());
+            return i1.getNome().compareTo(i2.getNome());//menor nome
         });
 
         return listaServicos;
