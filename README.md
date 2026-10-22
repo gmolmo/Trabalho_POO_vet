@@ -6,7 +6,7 @@ O sistema tem como objetivo auxiliar na gestão contábil de um estabelecimento 
 
 ---
 
-## Funcionalidades e Regras de Negócio
+## Funcionalidades
 
 * **Leitura e Validação de Dados CSV:** Importação de dados utilizando codificação UTF-8.
 * **Controle de Entidades:** Gerenciamento integrado de Pessoas (Físicas e Jurídicas), Animais de estimação (divididos nas famílias suportadas: *Cães, Felinos, Aves e Roedores*), Produtos, Serviços, Vendas e Atendimentos.
@@ -18,7 +18,7 @@ O sistema tem como objetivo auxiliar na gestão contábil de um estabelecimento 
 
 ---
 
-## Arquitetura do Projeto
+## Arquitetura
 
 O código-fonte segue os princípios de Orientação a Objetos e divisão em pacotes:
 
